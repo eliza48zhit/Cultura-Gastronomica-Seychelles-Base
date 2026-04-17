@@ -1,0 +1,84 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+/**
+ * @title CulturaSeychelles
+ * @dev Registro de tecnicas de fusion criolla y termodinamica marina.
+ * Serie: Sabores de Africa (28/54)
+ */
+contract CulturaSeychelles {
+
+    struct Plato {
+        string nombre;
+        string ingredientes;
+        string preparacion;
+        uint256 nivelEspecias;      // Escala de infusion termogenica (1-10)
+        uint256 frescuraMarina;     // Horas desde la captura (0-24)
+        bool usaLecheDeCoco;        // Base para curry y texturizacion
+        uint256 likes;
+        uint256 dislikes;
+    }
+
+    mapping(uint256 => Plato) public registroCulinario;
+    uint256 public totalRegistros;
+    address public owner;
+
+    constructor() {
+        owner = msg.sender;
+        // Inauguramos con el Pescado a la Parrilla Criollo
+        registrarPlato(
+            "Poisson Grille", 
+            "Pescado fresco (Pargo o Burges), jengibre, ajo, guindillas, limon.",
+            "Incisiones profundas rellenas de pasta de especias y asado lento sobre carbon de coco.",
+            8, 
+            4, 
+            false
+        );
+    }
+
+    function registrarPlato(
+        string memory _nombre, 
+        string memory _ingredientes,
+        string memory _preparacion,
+        uint256 _especias, 
+        uint256 _frescura,
+        bool _coco
+    ) public {
+        require(bytes(_nombre).length > 0, "Nombre requerido");
+        require(_especias <= 10, "Escala de especias fuera de rango");
+
+        totalRegistros++;
+        registroCulinario[totalRegistros] = Plato({
+            nombre: _nombre,
+            ingredientes: _ingredientes,
+            preparacion: _preparacion,
+            nivelEspecias: _especias,
+            frescuraMarina: _frescura,
+            usaLecheDeCoco: _coco,
+            likes: 0,
+            dislikes: 0
+        });
+    }
+
+    function darLike(uint256 _id) public {
+        require(_id > 0 && _id <= totalRegistros, "ID invalido");
+        registroCulinario[_id].likes++;
+    }
+
+    function darDislike(uint256 _id) public {
+        require(_id > 0 && _id <= totalRegistros, "ID invalido");
+        registroCulinario[_id].dislikes++;
+    }
+
+    function consultarPlato(uint256 _id) public view returns (
+        string memory nombre,
+        uint256 especias,
+        uint256 frescura,
+        bool coco,
+        uint256 likes
+    ) {
+        require(_id > 0 && _id <= totalRegistros, "ID inexistente");
+        Plato storage p = registroCulinario[_id];
+        return (p.nombre, p.nivelEspecias, p.frescuraMarina, p.usaLecheDeCoco, p.likes);
+    }
+}
